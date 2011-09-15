@@ -41,7 +41,7 @@ function connect(srv, host) {
 	var rhost = dest.host
 	var rport = dest.port
 	log(3, " trying "+rhost+":"+rport)
-	srv.connect(rhost, rport)
+	srv.connect(rport, rhost)
 	return "Host: "+host+":"+rport
 }
 
