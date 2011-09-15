@@ -60,7 +60,6 @@ function accept(request, response) {
 			socket.end()
 		})
 
-		/*
 		var l =
 			request.method+" "+
 			request.url+" HTTP/"+
@@ -76,23 +75,7 @@ function accept(request, response) {
 			log(3, "   : "+h)
 		}
 		socket.write("\r\n")
-		*/
-// THIS SHOULD BE GIVING BACK THE oandpedu.com HOME PAGE, but it doesn't
-// seems to return the "no defined virtual host" page, which is a meta redirect to sleepless.com
-var l = ""+
-"GET / HTTP/1.1\r\n"+
-"Host: oandpedu.com\r\n"+
-"Connection: keep-alive\r\n"+
-"Cache-Control: max-age=0\r\n"+
-"User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_1) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.220 Safari/535.1\r\n"+
-"Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"+
-"Accept-Encoding: gzip,deflate,sdch\r\n"+
-"Accept-Language: en-US,en;q=0.8\r\n"+
-"Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.3\r\n"+
-"\r\n"+
-""
-socket.write(l, 'binary')
-log(3, "   : "+l)
+
 
 	})
 	socket.connect(dest.port, dest.host)

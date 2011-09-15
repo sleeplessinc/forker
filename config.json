@@ -2,7 +2,7 @@
 	"logLevel": 5,
 	"port": 8888,
 	"forks":{
-		"default":		{ "host":"gus.sleepless.com",	"port":80 },
+		"default":		{ "host":"oandpedu.com",	"port":80 },
 		"google.com":	{ "host":"google.com",			"port":80 }
 	}
 }
