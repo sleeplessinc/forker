@@ -1,6 +1,6 @@
 {
-	"logLevel": 5,
-	"port": 9999,
+	"logLevel": 2,
+	"port": 8888,
 	"forks":{
 		"default":			{ "host":"localhost",		"port":80 },
 		"jobtool.com":		{ "host":"localhost",		"port":3901 }

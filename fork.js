@@ -14,6 +14,9 @@ String.prototype.lower = function() { return this.toLowerCase() }
 String.prototype.cap = String.prototype.cap || function() {
 	return this.substring(0,1).toUpperCase() + this.substring(1)
 }
+String.prototype.abbr = String.prototype.abbr || function(l) {
+	return this.length > l ? this.substring(0, l - 4)+" ..." : this
+}
 
 
 
@@ -40,7 +43,7 @@ function connect(srv, host) {
 	var dest = getDest(host)
 	var rhost = dest.host
 	var rport = dest.port
-	log(3, " trying "+rhost+":"+rport)
+	log(2, host+" -> "+rhost+":"+rport)
 	srv.connect(rport, rhost)
 	return "Host: "+host+":"+rport
 }
@@ -62,6 +65,8 @@ function accept(cli) {
 		log(3, "(connect)")
 		connected = true
 		// push out buffered data
+		if(out.length > 0)
+			log(1, hh+": "+out[0].trim().abbr(70))
 		while(out.length > 0) {
 			var s = out.shift()
 			log(3, ">>> "+s)
