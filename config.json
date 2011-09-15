@@ -1,0 +1,8 @@
+{
+	"logLevel": 5,
+	"port": 8888,
+	"forks":{
+		"default":"sleepless.com:80"
+	}
+}
+
