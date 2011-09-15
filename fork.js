@@ -5,9 +5,16 @@ var http = require("http")
 var fs = require("fs")
 var util = require("util"), insp = util.inspect
 var log5 = require("log5"), log = log5.mkLog("fork:")
+var chopper = require("chopper")
 
 
 var j2o = function(j) { try { return JSON.parse(j) } catch(e) { return null } }
+
+String.prototype.lower = function() { return this.toLowerCase() }
+String.prototype.cap = String.prototype.cap || function() {
+	return this.substring(0,1).toUpperCase() + this.substring(1)
+}
+
 
 
 var defaultConfig = {
@@ -20,100 +27,117 @@ var defaultConfig = {
 var config = defaultConfig
 
 
-function accept(request, response) {
-
-	var method = request.method
-	var hdrs = request.headers
-	var host = hdrs['host'].replace(/:\d+$/, "")
-	
-	var dest = config.forks[host]
-	if(!dest) {
+function getDest(h) {
+	var dest = config.forks[h]
+	if(!dest) 
 		dest = config.forks["default"]
-		if(!dest) 
-			dest = defaultConfig.forks["default"]
-	}
+	if(!dest) 
+		dest = defaultConfig.forks["default"]
+	return dest
+}
 
-	log(3, host+"  -->  "+dest.host+":"+dest.port)
+function connect(srv, host) {
+	var dest = getDest(host)
+	var rhost = dest.host
+	var rport = dest.port
+	log(3, " trying "+rhost+":"+rport)
+	srv.connect(rhost, rport)
+	return "Host: "+host+":"+rport
+}
 
-	var socket = new net.Socket()
-	socket.on("connect", function() {
+function accept(cli) {
+	log(3, "(accept)")
+
+	var chop = new Chopper("\n")
+	var connected = false
+	var out = []
+	var hh = null
+	var hdone = false
+
+	cli.setEncoding("utf8")
+
+
+	var srv = new net.Socket()
+	srv.on("connect", function() {
 		log(3, "(connect)")
-
-		socket.on("data", function(data) {
-			log(3, "(data from srv) ")
-			response.write(data, 'binary')
-		})
-		request.on('data', function(data) {
-			log(3, "(data from cli)")
-			socket.write(data, 'binary')
-		});
-		socket.on("end", function() {
-			log(3, "(((((((srv end))))))")
-			response.end()
-		})
-		request.on("end", function() {
-			log(3, "------cli end------")
-			socket.end()
-		})
-		request.on("close", function() {
-			log(3, "------cli close------")
-			socket.end()
-		})
-
-		var l =
-			request.method+" "+
-			request.url+" HTTP/"+
-			request.httpVersionMajor+"."+
-			request.httpVersionMinor+"\r\n"
-		socket.write(l)
-		log(3, "   : "+l)
-
-		hdrs['host'] = hdrs['host'].replace(/:\d+$/, ":"+dest.port)
-		for(key in hdrs) {
-			var h = key+": "+hdrs[key]
-			socket.write(h+"\r\n")
-			log(3, "   : "+h)
+		connected = true
+		// push out buffered data
+		while(out.length > 0) {
+			var s = out.shift()
+			log(3, ">>> "+s)
+			srv.write(s)
 		}
-		socket.write("\r\n")
-
-
 	})
-	socket.connect(dest.port, dest.host)
+	srv.on("data", function(data) {
+		log(3, "(data from srv) ")
+		cli.write(data, 'binary')
+	})
+	srv.on("end", function() {
+		log(3, "((((((( srv end ))))))")
+		cli.end()
+	})
 
-	/*
-	var proxy = http.createClient(dest.port, dest.host)
 
-	log(3, "headers: "+insp(request.headers));
-	var proxy_request = proxy.request(request.method, request.url, request.headers);
+	cli.on("end", function() {
+		log(3, "-----< cli end >-----")
+		srv.end()
+	})
+	cli.on("close", function() {
+		log(3, "-----< cli close >-----")
+		srv.end()
+	})
+	cli.on('data', function(data) {
 
-	proxy_request.addListener('response', function (proxy_response) {
-		proxy_response.addListener('data', function(chunk) {
-			response.write(chunk, 'binary');
-		});
-		proxy_response.addListener('end', function() {
-			response.end();
-		});
-		response.writeHead(proxy_response.statusCode, proxy_response.headers);
-	});
-	request.addListener('data', function(chunk) {
-		proxy_request.write(chunk, 'binary');
-	});
-	request.addListener('end', function() {
-		proxy_request.end();
-	});
-	*/
+		log(3, "(data from cli)")
+		if(connected) {
+			// end of headers found, socket connected, buffered data pushed out
+			srv.write(data)
+		}
+		else {
+			if(hdone) {
+				// found end of headers, but remote sock still not connected
+				log(3, "hdone write")
+				out.push(s) 
+			}
+			else {
+				// still looking for end of headers
+				chop.next(data, function(s) {
+					// this callback may be summoned more than once per call to chop.next()
+					if(hdone) {
+						// end of headers found.  any first chopped bits are part of body
+						log(3, "body: "+s)
+						out.push(s+"\n") }
+					else {
+						// still looking for end of headers
+						var s = s.trim()
+						log(3, "hdr: "+s)
+						if(s === "") {
+							// empty line - end of headers
+							log(3, "end of headers")
+							hdone = true
+							if(!hh)
+								hh = "default"		// there was no Host: header
+							connect(srv, hh)
+						}
+						else {
+							var m = s.lower().match(/^host: ([^:]+):(\d+)$/i) 
+							if(m)
+								s = hh = m[1]
+						}
+						out.push(s+"\r\n")		// write out header
+					}
+				})
+			}
+		}
+	})
 }
 
 
 function start() {
 	log(config.logLevel)
-	log(insp(config))
-	http.createServer(function(request, response) {
-		var host = request.headers['host']
-		//log(3, insp(request))
-		log(3, request.method+" "+host+" "+request.url);
-		accept(request, response)
-	}).listen(config.port);
+	log(6, insp(config))
+	net.createServer(accept).listen(config.port)
+	log(2, "Listening on "+config.port)
 }
 
 
