@@ -77,9 +77,11 @@ function accept(request, response) {
 		}
 		socket.write("\r\n")
 		*/
+// THIS SHOULD BE GIVING BACK THE oandpedu.com HOME PAGE, but it doesn't
+// seems to return the "no defined virtual host" page, which is a meta redirect to sleepless.com
 var l = ""+
 "GET / HTTP/1.1\r\n"+
-"Host: dmeposedu.com\r\n"+
+"Host: oandpedu.com\r\n"+
 "Connection: keep-alive\r\n"+
 "Cache-Control: max-age=0\r\n"+
 "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_1) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.220 Safari/535.1\r\n"+
