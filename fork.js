@@ -24,7 +24,7 @@ function accept(request, response) {
 
 	var method = request.method
 	var hdrs = request.headers
-	var host = hdrs['host']
+	var host = hdrs['host'].replace(/:\d+$/, "")
 	
 	var dest = config.forks[host]
 	if(!dest) {
@@ -40,7 +40,7 @@ function accept(request, response) {
 		log(3, "(connect)")
 
 		socket.on("data", function(data) {
-			log(3, "(data from srv) "+data)
+			log(3, "(data from srv) ")
 			response.write(data, 'binary')
 		})
 		request.on('data', function(data) {
