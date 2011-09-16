@@ -1,17 +1,17 @@
 {
-  "name": "fork",
+  "name": "forker",
   "version": "1.0.0",
-  "description" : "An awesome forking virtual host proxy",
+  "description" : "A forking HTTP proxy (you heard me)",
   "author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
   "license": {
     "type": "MIT",
-    "url": "https://github.com/sleeplessinc/fork/raw/master/LICENSE"
+    "url": "https://github.com/sleeplessinc/forker/raw/master/LICENSE"
   },
   "repositories": [
     {
       "type": "git",
-      "url": "https://sleeplessinc@github.com/sleeplessinc/fork.git"
+      "url": "https://sleeplessinc@github.com/sleeplessinc/forker.git"
     }
   ],
-  "repository": "git://github.com/sleeplessinc/fork.git"
+  "repository": "git://github.com/sleeplessinc/forker.git"
 }
