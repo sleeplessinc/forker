@@ -27,7 +27,6 @@ var util = require("util"), insp = util.inspect
 var log5 = require("log5"), log = log5.mkLog("fork:")
 var chopper = require("chopper")
 
-
 var j2o = function(j) { try { return JSON.parse(j) } catch(e) { return null } }
 var o2j = function(o) { return JSON.stringify(o) }
 
@@ -35,7 +34,6 @@ String.prototype.lower = function() { return this.toLowerCase() }
 String.prototype.abbr = String.prototype.abbr || function(l) {
 	return this.length > l ? this.substring(0, l - 4)+" ..." : this
 }
-
 
 var defaultConfig = {
 	logLevel: 1,
@@ -45,7 +43,6 @@ var defaultConfig = {
 	}
 }
 var config = defaultConfig
-
 
 function getDest(h) {
 	var dest = config.forks[h]
@@ -163,10 +160,8 @@ function accept(cli) {
 	})
 }
 
-
 function start() {
 	log(config.logLevel)
-	log(3, insp(config))
 	net.createServer(accept).listen(config.port, config.host)
 	log(2, "Listening on "+(config.host || "*")+":"+config.port)
 }
