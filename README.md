@@ -19,7 +19,7 @@ other destination based on what's in the simple configuration file called "confi
 
 ## Install
 	
-	npm install fork
+	npm install forker
 
 ## Example config.json
 
