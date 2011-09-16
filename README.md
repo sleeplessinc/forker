@@ -26,14 +26,18 @@ other destination based on what's in the simple configuration file called "confi
 The logLevel can be 0 thru 5.  Higher levels beget more deatailed output.
 
 The "port" setting is the port that forker will listen on. 
-(xxx - Currently listens on all IPs)
+If "host" is not included, forker listens on all IPs (xxx support multiple IPs)
+The "uid" and "gid" values are for downgrading privilege if when run as root.
 
 The "default" fork goes to the legacy Apache server (changed to listen on 8080 instead of 80)
 The "foo.com" fork goes to a Node server listening on port 3901
 
 	{
+		"uid": "apache",
+		"gid": "apache",
 		"logLevel": 1,
 		"port": 80,
+		"host": "127.0.0.1",
 		"forks":{
 			"foo.com": { "host":"localhost", "port":3901 },
 			"default": { "host":"localhost", "port":8080 }
