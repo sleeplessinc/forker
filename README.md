@@ -3,9 +3,7 @@
 
 This crazy forker listens on a port (typically 80) and forwards HTTP transactions to other
 servers based on what is found in the "Host:" headers. 
-It's sort of like simplistic "virtual hosts".
-
-	[See Diagram](forker.pdf)
+It's sort of like simplistic "virtual hosts" ... [Diagram](forker.pdf)
 
 ## Install
 	
