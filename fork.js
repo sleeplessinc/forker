@@ -45,7 +45,7 @@ function connect(srv, host) {
 	var rport = dest.port
 	log(2, host+" -> "+rhost+":"+rport)
 	srv.connect(rport, rhost)
-	return "Host: "+host+":"+rport
+	//return "Host: "+host+":"+rport
 }
 
 function accept(cli) {
@@ -69,13 +69,14 @@ function accept(cli) {
 			log(1, hh+": "+out[0].trim().abbr(70))
 		while(out.length > 0) {
 			var s = out.shift()
-			log(3, ">>> "+s)
+			log(3, ">>> "+s.trim())
 			srv.write(s)
 		}
 	})
 	srv.on("data", function(data) {
 		log(3, "(data from srv) ")
-		cli.write(data, 'binary')
+		if(cli.writable)
+			cli.write(data, 'binary')
 	})
 	srv.on("end", function() {
 		log(3, "((((((( srv end ))))))")
@@ -93,7 +94,7 @@ function accept(cli) {
 	})
 	cli.on('data', function(data) {
 
-		log(3, "(data from cli)")
+		log(3, "(data from cli)"+data)
 		if(connected) {
 			// end of headers found, socket connected, buffered data pushed out
 			srv.write(data)
@@ -102,7 +103,7 @@ function accept(cli) {
 			if(hdone) {
 				// found end of headers, but remote sock still not connected
 				log(3, "hdone write")
-				out.push(s) 
+				out.push(data) 
 			}
 			else {
 				// still looking for end of headers
@@ -126,8 +127,10 @@ function accept(cli) {
 						}
 						else {
 							var m = s.lower().match(/^host: ([^:]+):(\d+)$/i) 
-							if(m)
-								s = hh = m[1]
+							if(m) {
+								hh = m[1]
+								s = "Host: "+hh
+							}
 						}
 						out.push(s+"\r\n")		// write out header
 					}
