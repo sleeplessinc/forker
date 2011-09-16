@@ -1,12 +1,50 @@
 
-# fork - An awesome forking virtual host proxy
+# forker 
+
+This crazy forker listens on a port (typically 80) and forwards HTTP transactions to other
+servers based on what is found in the "Host:" headers. 
+Doing something like simplistic "virtual hosts".
+
+I wrote this because I have a Linux server that hosts many legacy virtual hosts using
+Apache and PHP.
+The Apache+PHP sites work great and I wanted to just leave them as they are, but I also
+wanted a way to deploy new Node servers on the same host that can share port 80
+without forcing the Node servers to suffer by making their traffic to go through Apache
+(using something like mod rewrite for example).
+
+So the idea is that forker listens on port 80 and acts as a "fork in the road".
+Traffic is split based on the hostname in "Host:" and goes either to Apache, or to some
+other destination based on what's in the simple configuration file called "config.json".
+
 
 ## Install
 	
-	npm install fork
+	npm install forker
 
-## Examples
+## Example config.json
 
+The logLevel can be 0 thru 5.  Higher levels beget more deatailed output.
+
+The "port" setting is the port that forker will listen on. 
+(xxx - Currently listens on all IPs)
+
+The "default" fork goes to the legacy Apache server (changed to listen on 8080 instead of 80)
+The "foo.com" fork goes to a Node server listening on port 3901
+
+	{
+		"logLevel": 1,
+		"port": 80,
+		"forks":{
+			"foo.com": { "host":"localhost", "port":3901 },
+			"default": { "host":"localhost", "port":8080 }
+		}
+	}
+
+## Running
+
+The config.json file is expected to be in the current working directory. (xxx)
+
+	node forker.js
 
 ## License
 
