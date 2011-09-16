@@ -1,4 +1,24 @@
+/*
+Copyright 2011 Sleepless Software Inc. All rights reserved.
 
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+IN THE SOFTWARE. 
+*/
 
 var net = require("net")
 var http = require("http")
@@ -11,13 +31,9 @@ var chopper = require("chopper")
 var j2o = function(j) { try { return JSON.parse(j) } catch(e) { return null } }
 
 String.prototype.lower = function() { return this.toLowerCase() }
-String.prototype.cap = String.prototype.cap || function() {
-	return this.substring(0,1).toUpperCase() + this.substring(1)
-}
 String.prototype.abbr = String.prototype.abbr || function(l) {
 	return this.length > l ? this.substring(0, l - 4)+" ..." : this
 }
-
 
 
 var defaultConfig = {
@@ -45,7 +61,6 @@ function connect(srv, host) {
 	var rport = dest.port
 	log(2, host+" -> "+rhost+":"+rport)
 	srv.connect(rport, rhost)
-	//return "Host: "+host+":"+rport
 }
 
 function accept(cli) {
@@ -79,17 +94,17 @@ function accept(cli) {
 			cli.write(data, 'binary')
 	})
 	srv.on("end", function() {
-		log(3, "((((((( srv end ))))))")
+		log(3, "(srv end)")
 		cli.end()
 	})
 
 
 	cli.on("end", function() {
-		log(3, "-----< cli end >-----")
+		log(3, "(cli end)")
 		srv.end()
 	})
 	cli.on("close", function() {
-		log(3, "-----< cli close >-----")
+		log(3, "(cli close)")
 		srv.end()
 	})
 	cli.on('data', function(data) {
@@ -126,13 +141,15 @@ function accept(cli) {
 							connect(srv, hh)
 						}
 						else {
+							// Look for a Host: header
 							var m = s.lower().match(/^host: ([^:]+):(\d+)$/i) 
 							if(m) {
+								// found it ... make a note of the hostname
 								hh = m[1]
 								s = "Host: "+hh
 							}
 						}
-						out.push(s+"\r\n")		// write out header
+						out.push(s+"\r\n")
 					}
 				})
 			}
@@ -148,7 +165,6 @@ function start() {
 	log(2, "Listening on "+config.port)
 }
 
-
 fs.readFile("config.json", function(e, s) {
 	if(e)
 		config = defaultConfig
@@ -156,5 +172,4 @@ fs.readFile("config.json", function(e, s) {
 		config = j2o(s)
 	start()
 })
-
 
