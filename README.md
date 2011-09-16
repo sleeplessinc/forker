@@ -1,7 +1,7 @@
 
-# forker - An awesome forking virtual host proxy
+# forker 
 
-Forker listens on a port (typically 80) and forwards HTTP transactions to other
+This crazy forker listens on a port (typically 80) and forwards HTTP transactions to other
 servers based on what is found in the "Host:" headers. 
 Doing something like simplistic "virtual hosts".
 
@@ -13,7 +13,7 @@ without forcing the Node servers to suffer by making their traffic to go through
 (using something like mod rewrite for example).
 
 So the idea is that forker listens on port 80 and acts as a "fork in the road".
-Traffic is split based on the hostname in "Host:" and go either to Apache, or to some
+Traffic is split based on the hostname in "Host:" and goes either to Apache, or to some
 other destination based on what's in the simple configuration file called "config.json".
 
 
