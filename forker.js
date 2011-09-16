@@ -29,6 +29,7 @@ var chopper = require("chopper")
 
 
 var j2o = function(j) { try { return JSON.parse(j) } catch(e) { return null } }
+var o2j = function(o) { return JSON.stringify(o) }
 
 String.prototype.lower = function() { return this.toLowerCase() }
 String.prototype.abbr = String.prototype.abbr || function(l) {
@@ -48,10 +49,12 @@ var config = defaultConfig
 
 function getDest(h) {
 	var dest = config.forks[h]
-	if(!dest) 
+	if(!dest) {
 		dest = config.forks["default"]
-	if(!dest) 
+	}
+	if(!dest) {
 		dest = defaultConfig.forks["default"]
+	}
 	return dest
 }
 
@@ -59,7 +62,7 @@ function connect(srv, host) {
 	var dest = getDest(host)
 	var rhost = dest.host
 	var rport = dest.port
-	log(2, host+" -> "+rhost+":"+rport)
+	log(1, host+" -> "+rhost+":"+rport)
 	srv.connect(rport, rhost)
 }
 
@@ -112,7 +115,8 @@ function accept(cli) {
 		log(3, "(data from cli)"+data)
 		if(connected) {
 			// end of headers found, socket connected, buffered data pushed out
-			srv.write(data)
+			if(srv.writable)
+				srv.write(data)
 		}
 		else {
 			if(hdone) {
@@ -136,13 +140,15 @@ function accept(cli) {
 							// empty line - end of headers
 							log(3, "end of headers")
 							hdone = true
-							if(!hh)
+							if(!hh) {
+								log(3, "no host header. using 'default' ?")
 								hh = "default"		// there was no Host: header
+							}
 							connect(srv, hh)
 						}
 						else {
 							// Look for a Host: header
-							var m = s.lower().match(/^host: ([^:]+):(\d+)$/i) 
+							var m = s.lower().match(/^host: ([^:]+)(:(\d+))?$/i) 
 							if(m) {
 								// found it ... make a note of the hostname
 								hh = m[1]
@@ -160,9 +166,9 @@ function accept(cli) {
 
 function start() {
 	log(config.logLevel)
-	log(6, insp(config))
-	net.createServer(accept).listen(config.port)
-	log(2, "Listening on "+config.port)
+	log(3, insp(config))
+	net.createServer(accept).listen(config.port, config.host)
+	log(2, "Listening on "+(config.host || "*")+":"+config.port)
 }
 
 fs.readFile("config.json", function(e, s) {

@@ -1,11 +1,10 @@
 {
 	"logLevel": 1,
-	"port": 8888,
+	"port": 80,
+	"host": "208.73.49.29",
 	"forks":{
-		"sleepless.com":	{ "host":"208.73.49.29",		"port":80 },
 		"jobtool.com":		{ "host":"208.73.49.28",		"port":3901 },
-		"oandpeducation.com":		{ "host":"208.73.49.30",		"port":80 },
-		"default":			{ "host":"208.73.49.29",		"port":80 }
+		"default":			{ "host":"208.73.49.29",		"port":8080 }
 	}
 }
 
