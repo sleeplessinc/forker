@@ -5,7 +5,7 @@ This crazy forker listens on a port (typically 80) and forwards HTTP transaction
 servers based on what is found in the "Host:" headers. 
 It's sort of like simplistic "virtual hosts".
 
-[Diagram][forker.pdf]
+[Diagram](forker.pdf)
 
 ## Install
 	
