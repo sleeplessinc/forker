@@ -40,6 +40,14 @@ The config.json file is expected to be in the current working directory. (xxx)
 
 ## Why?
 
+Note:
+
+	There is already a project package called node-http-proxy which does more or less the 
+	same thing.
+	I wasn't (or didn't want to be) aware of it though, so I just rolled my own.
+	Mine is very simplistic and featureless by comparison, but I like to think it's much
+	more efficient and simpler to setup and use.
+
 I wrote this because I have a Linux server that hosts many legacy virtual hosts using
 Apache and PHP.
 The Apache+PHP sites work great and I wanted to just leave them as they are, but I also
@@ -50,6 +58,9 @@ without forcing the Node servers to suffer by making their traffic to go through
 So the idea is that forker listens on port 80 and acts as a "fork in the road".
 Traffic is split based on the hostname in "Host:" and goes either to Apache, or to some
 other destination based on what's in the simple configuration file called "config.json".
+
+I'd be very interested in anyone who wants to improve this module to make it more 
+robust.
 
 
 ## License
