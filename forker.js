@@ -95,8 +95,10 @@ function accept(cli) {
 	})
 	srv.on("data", function(data) {
 		log(3, "(data from srv) ")
-		if(cli.writable)
+		if(cli.writable) {
+			// xxx chop for headers and inject my own here??
 			cli.write(data, 'binary')
+		}
 	})
 	srv.on("end", function() {
 		log(3, "(srv end)")
