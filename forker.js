@@ -35,6 +35,10 @@ String.prototype.abbr = String.prototype.abbr || function(l) {
 	return this.length > l ? this.substring(0, l - 4)+" ..." : this
 }
 
+process.on("uncaughtException", function(e) {
+	log(1, "******* "+e.stack);
+})
+
 var defaultConfig = {
 	logLevel: 1,
 	port: 80,
@@ -85,13 +89,16 @@ function accept(cli) {
 		while(out.length > 0) {
 			var s = out.shift()
 			log(3, ">>> "+s.trim())
-			srv.write(s)
+			if(srv.writable)
+				srv.write(s)
 		}
 	})
 	srv.on("data", function(data) {
 		log(3, "(data from srv) ")
-		if(cli.writable)
+		if(cli.writable) {
+			// xxx chop for headers and inject my own here??
 			cli.write(data, 'binary')
+		}
 	})
 	srv.on("end", function() {
 		log(3, "(srv end)")
