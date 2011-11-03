@@ -114,6 +114,8 @@ function accept(cli) {
 			// end of headers found, socket connected, buffered data pushed out
 			if(srv.writable)
 				srv.write(data)
+			else
+				srv.destroy()
 		}
 		else {
 			if(hdone) {
