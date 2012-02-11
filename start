@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+pid=`cat PID`
+if [ -d "/proc/$pid" ] ; then
+	echo "Already running" 
+else
+	ulimit -n 1000000
+	node > log.txt forker.js &
+fi
+
+
+#pid=""
+#if test -e "PID" ; then
+#	pid=`cat PID`
+#fi
+#
+#if [ "$pid" == "" ] ; then
+#	node > log.txt forker.js &
+#else
+#	echo "Already running" 
+#fi
+#
+

@@ -183,3 +183,6 @@ fs.readFile("config.json", function(e, s) {
 	start()
 })
 
+fs.writeFileSync("PID", ""+process.pid)
+
+
