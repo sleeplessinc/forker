@@ -12,8 +12,6 @@ It's sort of like simplistic "virtual hosts" ... [Diagram](https://github.com/sl
 ## Example config.json
 
 	{
-		"uid": "apache",
-		"gid": "apache",
 		"logLevel": 1,
 		"port": 80,
 		"host": "127.0.0.1",
@@ -27,7 +25,6 @@ The logLevel can be 0 thru 5.  Higher levels beget more deatailed output.
 
 The "port" setting is the port that forker will listen on. 
 If "host" is not included, forker listens on all IPs (xxx support multiple IPs)
-The "uid" and "gid" values are for downgrading privilege when run as root.
 
 With the shown configuration,
 the "default" fork goes to the legacy Apache server (changed to listen on 8080 instead of 80)
