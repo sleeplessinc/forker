@@ -27,10 +27,11 @@ The logLevel can be 0 thru 5.  Higher levels beget more deatailed output.
 
 The "port" setting is the port that forker will listen on. 
 If "host" is not included, forker listens on all IPs (xxx support multiple IPs)
-The "uid" and "gid" values are for downgrading privilege if when run as root.
+The "uid" and "gid" values are for downgrading privilege when run as root.
 
-The "default" fork goes to the legacy Apache server (changed to listen on 8080 instead of 80)
-The "foo.com" fork goes to a Node server listening on port 3901
+With the shown configuration,
+the "default" fork goes to the legacy Apache server (changed to listen on 8080 instead of 80)
+and the "foo.com" fork goes to a Node server listening on port 3901
 
 ## Running
 
