@@ -36,7 +36,7 @@ String.prototype.abbr = String.prototype.abbr || function(l) {
 }
 
 process.on("uncaughtException", function(e) {
-	log(1, "******* "+e.stack);
+	log(0, "******* "+e.stack);
 })
 
 var defaultConfig = {
