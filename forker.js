@@ -26,7 +26,6 @@ var http = require("http")
 var fs = require("fs")
 var util = require("util"), insp = util.inspect
 var log5 = require("log5"), log = log5.mkLog("fork:")
-var chopper = require("chopper")
 
 
 var j2o = function(j) { try { return JSON.parse(j) } catch(e) { return null } }
@@ -243,6 +242,4 @@ var start = function(e, s) {
 fs.writeFileSync("PID", ""+process.pid)
 
 fs.readFile(cfgFile, start)
-
-
 
