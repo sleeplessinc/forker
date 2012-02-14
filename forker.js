@@ -100,8 +100,10 @@ function accept(cli) {
 	cli.on("end", function() {		// FIN 
 		log(4, "C-"+cid+" end")
 		pumpIt()
-		if(srv && srv.writable)
+		if(srv && srv.writable) {
 			srv.end()					// FIN
+			srv = null
+		}
 	})
 
 	cli.on("close", function(hadError) {
@@ -118,7 +120,7 @@ function accept(cli) {
 		while(held.length > 0) {
 			var d = held.shift()
 			log(5, "C-"+cid+" flushing held "+d.length+" "+d)
-			if(srv.writable)
+			if(srv && srv.writable)
 				srv.write(d)
 			else
 				log(2, "C-"+cid+" flush held: srv not writable?")
@@ -152,7 +154,7 @@ function accept(cli) {
 		}
 
 		// find host header in held buffers
-		log(3, "C-"+cid+" looking for route")
+		log(5, "C-"+cid+" looking for route")
 		var s = "";
 		held.forEach(function(v) {
 			s += v.toString("utf8")
@@ -181,7 +183,7 @@ function accept(cli) {
 		srv.setNoDelay(true)			// disable nagle
 
 		srv.on("error", function(e) {
-			log(1, "S-"+cid+" error "+insp(e))
+			log(1, "S-"+cid+" error "+e.stack)
 			cx()
 		})
 
@@ -202,7 +204,6 @@ function accept(cli) {
 		})
 
 		srv.on("connect", function() {
-			var la = srv.address()
 			flushHeld()
 		})
 		
