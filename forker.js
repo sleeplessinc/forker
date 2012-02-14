@@ -20,12 +20,14 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE. 
 */
 
+
 var net = require("net")
 var http = require("http")
 var fs = require("fs")
 var util = require("util"), insp = util.inspect
 var log5 = require("log5"), log = log5.mkLog("fork:")
 var chopper = require("chopper")
+
 
 var j2o = function(j) { try { return JSON.parse(j) } catch(e) { return null } }
 var o2j = function(o) { return JSON.stringify(o) }
@@ -36,178 +38,210 @@ String.prototype.abbr = String.prototype.abbr || function(l) {
 }
 
 process.on("uncaughtException", function(e) {
-	log(0, "******* "+e.stack);
+	log(0, "F "+e.stack);
 })
 
-var defaultConfig = {
-	logLevel: 1,
-	port: 80,
+
+
+var cfgFile = "cfg.json"
+var cfg = defaultConfig = {
+	logLevel: 5,
+	port: 8888,
 	forks:{
-		"default":	{ "host":"sleepless.com",	"port":80 }
+		"default":	{ "host":"sleepless.com",	"port":8080 }
 	}
 }
-var config = defaultConfig
+
+var seq = 0
+
 
 function getDest(h) {
-	var dest = config.forks[h]
+	var dest = cfg.forks[h]
 	if(!dest) {
-		dest = config.forks["default"]
+		dest = cfg.forks["default"]
 	}
 	if(!dest) {
 		dest = defaultConfig.forks["default"]
 	}
+	log(4, "getDest("+h+") returns "+insp(dest))
 	return dest
 }
 
-function connect(srv, host) {
-	var dest = getDest(host)
-	var rhost = dest.host
-	var rport = dest.port
-	log(1, host+" -> "+rhost+":"+rport)
-	srv.connect(rport, rhost)
-}
 
 function accept(cli) {
-/*
 
-	forkme
-		find host in held
-		lookup dest host:port
-		srv = connect to det
-		write held
-		held = null
+	var cid = ++seq
 
-	held = buffer of size 0
-	on data 
-		append data to held
-		if held.length > 8K
-			forkMe
-		pump
-	on end
-		if(held)
-			forkMe
-		close
+	var ra = cli.remoteAddress+":"+cli.remotePort
+	log(2, "C-"+cid+" accept RMT="+ra)
 
+	var held = []
+	var heldLen = 0
+	var srv = null
 
+	cli.setNoDelay(true)		// disable nagle
 
+	var cx = function() {
+		cli.destroy()
+		if(srv)
+			srv.destroy()
+	}
 
-
-*/
-	log(3, "(accept)")
-
-	var chop = new Chopper("\n")
-	var connected = false
-	var out = []
-	var hh = null
-	var hdone = false
-
-	cli.setEncoding("utf8")
-
-
-	var srv = new net.Socket()
-	srv.on("connect", function() {
-		log(3, "(connect)")
-		connected = true
-		// push out buffered data
-		if(out.length > 0)
-			log(1, hh+": "+out[0].trim().abbr(70))
-		while(out.length > 0) {
-			var s = out.shift()
-			log(3, ">>> "+s.trim())
-			if(srv.writable)
-				srv.write(s)
-		}
-	})
-	srv.on("data", function(data) {
-		log(3, "(data from srv) ")
-		if(cli.writable) {
-			// xxx chop for headers and inject my own here??
-			cli.write(data, 'binary')
-		}
-	})
-	srv.on("end", function() {
-		log(3, "(srv end)")
-		cli.end()
+	cli.setTimeout(30*1000, function() {
+		log(3, "C-"+cid+" timeout")
+		cx()
 	})
 
+	cli.on("error", function() {
+		log(2, "C-"+cid+" timeout")
+		cx()
+	})
 
-	cli.on("end", function() {
-		log(3, "(cli end)")
-		srv.end()
+	cli.on("end", function() {		// FIN 
+		log(4, "C-"+cid+" end")
+		pumpIt()
+		if(srv && srv.writable)
+			srv.end()					// FIN
 	})
-	cli.on("close", function() {
-		log(3, "(cli close)")
-		srv.end()
+
+	cli.on("close", function(hadError) {
+		log(4, "C-"+cid+" close "+hadError)
 	})
+
 	cli.on('data', function(data) {
+		log(5, "C-"+cid+" data "+data.length+" bytes")
+		pumpIt(data)
+	})
 
-		log(3, "(data from cli)"+data)
-		if(connected) {
-			// end of headers found, socket connected, buffered data pushed out
+	var flushHeld = function() {
+		// write held buffers
+		while(held.length > 0) {
+			var d = held.shift()
+			log(5, "C-"+cid+" flushing held "+d.length+" "+d)
 			if(srv.writable)
-				srv.write(data)
+				srv.write(d)
 			else
-				srv.destroy()
+				log(2, "C-"+cid+" flush held: srv not writable?")
 		}
-		else {
-			if(hdone) {
-				// found end of headers, but remote sock still not connected
-				log(3, "hdone write")
-				out.push(data) 
+	}
+
+	var pumpIt = function(data) {
+
+		if(srv) {
+			if(data) {
+				log(5, "C-"+cid+"  pumping through "+data.length)
+				// just write it back out
+				if(srv.writable)
+					srv.write(data)
+				else
+					log(2, "C-"+cid+" stream: srv not writable?")
 			}
 			else {
-				// still looking for end of headers
-				chop.next(data, function(s) {
-					// this callback may be summoned more than once per call to chop.next()
-					if(hdone) {
-						// end of headers found.  any first chopped bits are part of body
-						log(3, "body: "+s)
-						out.push(s+"\n") }
-					else {
-						// still looking for end of headers
-						var s = s.trim()
-						log(3, "hdr: "+s)
-						if(s === "") {
-							// empty line - end of headers
-							log(3, "end of headers")
-							hdone = true
-							if(!hh) {
-								log(3, "no host header. using 'default' ?")
-								hh = "default"		// there was no Host: header
-							}
-							connect(srv, hh)
-						}
-						else {
-							// Look for a Host: header
-							var m = s.lower().match(/^host: ([^:]+)(:(\d+))?$/i) 
-							if(m) {
-								// found it ... make a note of the hostname
-								hh = m[1]
-								s = "Host: "+hh
-							}
-						}
-						out.push(s+"\r\n")
-					}
-				})
+				flushHeld()
 			}
+			return
 		}
+
+		// Connection to remote server not yet established
+	
+		if(data) {
+			// 0 1
+			log(5, "C-"+cid+" held "+held.length+" "+heldLen)
+			held.push(data);
+			heldLen += data.length
+		}
+
+		// find host header in held buffers
+		log(3, "C-"+cid+" looking for host "+heldLen)
+		var s = "";
+		held.forEach(function(v) {
+			s += v.toString("utf8")
+		})
+		log(4, "C-"+cid+" hdrs "+s);
+		var fhost = "default"
+		var m = s.match(/Host: ([-\.a-z0-9]+) ?\r?\n/i)
+		if(m) {
+			fhost = m[1]
+			log(5, "C-"+cid+" route found "+fhost)
+		}
+
+		var dest = getDest(fhost)
+		var rhost = dest.host
+		var rport = dest.port
+		log(3, "S-"+cid+" forking "+fhost+" -> "+rhost+":"+rport)
+
+		//s = s.replace(/\nhost: ([-\.a-z0-9]+(:([0-9]+))?) \r?\n/i, "\nHost: "+rhost+"\r\n")
+		s = s.replace(/ost: [-\.a-z0-9:]+/i, "ost: "+rhost);
+		held = [s]
+
+
+		// established connection to remote host
+		srv = new net.Socket()
+
+		srv.setNoDelay(true)			// disable nagle
+
+		srv.on("error", function(e) {
+			log(1, "S-"+cid+" error "+insp(e))
+			cx()
+		})
+
+		srv.on("end", function() {		// FIN
+			log(5, "S-"+cid+" end ")
+			cli.end()					// FIN
+			cx()
+		})
+
+		srv.on("data", function(data) {
+			log(5, "S-"+cid+" data "+data.length)
+			if(cli.writable) {
+				cli.write(data)
+			}
+			else {
+				log(2, "S-"+cid+" discarded - cli not writable")
+			}
+		})
+
+		srv.on("connect", function() {
+			var la = srv.address()
+			flushHeld()
+		})
+		
+		srv.connect(rport, rhost)
+	}
+}
+
+
+var start = function(e, s) {
+	if(!e) {
+		cfg = j2o(s)
+	}
+	if(!cfg) {
+		cfg = defaultConfig
+	}
+
+	log(cfg.logLevel)
+	log(4, insp(cfg))
+
+	server = net.createServer()
+
+	server.on("error", function(e) {
+		log(1, "F error "+e.stack+")")
 	})
+
+	server.on("connection", accept)
+
+	server.on("listening", function() {
+		var a = server.address()
+		log(2, "F listening "+(a.address || "*")+":"+a.port)
+	})
+
+	server.listen(cfg.port, cfg.host)
 }
 
-function start() {
-	log(config.logLevel)
-	net.createServer(accept).listen(config.port, config.host)
-	log(2, "Listening on "+(config.host || "*")+":"+config.port)
-}
-
-fs.readFile("config.json", function(e, s) {
-	if(e)
-		config = defaultConfig
-	else
-		config = j2o(s)
-	start()
-})
 
 fs.writeFileSync("PID", ""+process.pid)
+
+fs.readFile(cfgFile, start)
+
 
 

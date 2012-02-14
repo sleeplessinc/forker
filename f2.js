@@ -73,8 +73,7 @@ function accept(cli) {
 	var cid = ++seq
 
 	var ra = cli.remoteAddress+":"+cli.remotePort
-	var la = cli.address()
-	log(4, "C-"+cid+" accept RMT="+ra+" LOC="+la.address+":"+la.port)
+	log(2, "C-"+cid+" accept RMT="+ra)
 
 	var held = []
 	var heldLen = 0
@@ -160,17 +159,19 @@ function accept(cli) {
 		})
 		log(4, "C-"+cid+" hdrs "+s);
 		var fhost = "default"
-		var m = s.match(/\nhost: ([-\.a-z0-9]+(:([0-9]+))?) \r?\n/i)
-		if(m)
+		var m = s.match(/Host: ([-\.a-z0-9]+) ?\r?\n/i)
+		if(m) {
 			fhost = m[1]
+			log(5, "C-"+cid+" route found "+fhost)
+		}
 
 		var dest = getDest(fhost)
 		var rhost = dest.host
 		var rport = dest.port
-		log(2, "S-"+cid+" forking "+fhost+" -> "+rhost+":"+rport)
+		log(3, "S-"+cid+" forking "+fhost+" -> "+rhost+":"+rport)
 
 		//s = s.replace(/\nhost: ([-\.a-z0-9]+(:([0-9]+))?) \r?\n/i, "\nHost: "+rhost+"\r\n")
-		s = s.replace(/ost: [-\.a-z0-9:]+/i, "ost: "+rhost+":"+rport);
+		s = s.replace(/ost: [-\.a-z0-9:]+/i, "ost: "+rhost);
 		held = [s]
 
 
@@ -185,7 +186,7 @@ function accept(cli) {
 		})
 
 		srv.on("end", function() {		// FIN
-			log(3, "S-"+cid+" end ")
+			log(5, "S-"+cid+" end ")
 			cli.end()					// FIN
 			cx()
 		})
@@ -201,10 +202,7 @@ function accept(cli) {
 		})
 
 		srv.on("connect", function() {
-			var ra = srv.remoteAddress+":"+cli.remotePort
 			var la = srv.address()
-			log(3, "S-"+cid+" connect LOC="+la.address+":"+la.port+" RMT="+ra)
-
 			flushHeld()
 		})
 		
@@ -222,6 +220,7 @@ var start = function(e, s) {
 	}
 
 	log(cfg.logLevel)
+	log(4, insp(cfg))
 
 	server = net.createServer()
 
