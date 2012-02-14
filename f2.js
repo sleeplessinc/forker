@@ -40,8 +40,8 @@ process.on("uncaughtException", function(e) {
 })
 
 var defaultConfig = {
-	logLevel: 1,
-	port: 80,
+	logLevel: 5,
+	port: 8888,
 	forks:{
 		"default":	{ "host":"sleepless.com",	"port":80 }
 	}
@@ -89,9 +89,6 @@ function accept(cli) {
 		close
 
 
-
-
-
 */
 	log(3, "(accept)")
 
@@ -101,6 +98,8 @@ function accept(cli) {
 	var hh = null
 	var hdone = false
 
+	Buffer = require("buffer");
+	log("isBuffer = "+Buffer.isBuffer(cli))
 	cli.setEncoding("utf8")
 
 
@@ -200,6 +199,9 @@ function start() {
 	log(2, "Listening on "+(config.host || "*")+":"+config.port)
 }
 
+start()
+
+/*
 fs.readFile("config.json", function(e, s) {
 	if(e)
 		config = defaultConfig
@@ -209,5 +211,6 @@ fs.readFile("config.json", function(e, s) {
 })
 
 fs.writeFileSync("PID", ""+process.pid)
+*/
 
 
