@@ -152,7 +152,7 @@ function accept(cli) {
 		}
 
 		// find host header in held buffers
-		log(3, "C-"+cid+" looking for host "+heldLen)
+		log(3, "C-"+cid+" looking for route")
 		var s = "";
 		held.forEach(function(v) {
 			s += v.toString("utf8")
