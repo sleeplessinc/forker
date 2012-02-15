@@ -20,51 +20,30 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE. 
 */
 
-
 var net = require("net")
-var http = require("http")
 var fs = require("fs")
 var util = require("util"), insp = util.inspect
 var log5 = require("log5"), log = log5.mkLog("fork:")
 
-
 var j2o = function(j) { try { return JSON.parse(j) } catch(e) { return null } }
 var o2j = function(o) { return JSON.stringify(o) }
 
-String.prototype.lower = function() { return this.toLowerCase() }
-String.prototype.abbr = String.prototype.abbr || function(l) {
-	return this.length > l ? this.substring(0, l - 4)+" ..." : this
-}
 
 process.on("uncaughtException", function(e) {
 	log(0, "F "+e.stack);
 })
 
 
-
 var cfgFile = "cfg.json"
 var cfg = defaultConfig = {
-	logLevel: 5,
-	port: 8888,
+	logLevel: 1,
+	port: 80,
 	forks:{
-		"default":	{ "host":"sleepless.com",	"port":8080 }
+		"default": { "host": "localhost", "port":8080 }
 	}
 }
 
 var seq = 0
-
-
-function getDest(h) {
-	var dest = cfg.forks[h]
-	if(!dest) {
-		dest = cfg.forks["default"]
-	}
-	if(!dest) {
-		dest = defaultConfig.forks["default"]
-	}
-	log(4, "getDest("+h+") returns "+insp(dest))
-	return dest
-}
 
 
 function accept(cli) {
@@ -166,7 +145,16 @@ function accept(cli) {
 			log(5, "C-"+cid+" route found "+fhost)
 		}
 
-		var dest = getDest(fhost)
+		var dest = cfg.forks[fhost]
+		if(!dest) {
+			dest = cfg.forks["default"]
+		}
+		if(!dest) {
+			dest = defaultConfig.forks["default"]
+		}
+		log(4, "getDest("+fhost+") returns "+insp(dest))
+
+
 		var rhost = dest.host
 		var rport = dest.port
 		log(3, "S-"+cid+" forking "+fhost+" -> "+rhost+":"+rport)
@@ -220,22 +208,19 @@ var start = function(e, s) {
 	}
 
 	log(cfg.logLevel)
-	log(4, insp(cfg))
 
 	server = net.createServer()
 
 	server.on("error", function(e) {
-		log(1, "F error "+e.stack+")")
+		log(1, "F error "+e.stack)
 	})
 
 	server.on("connection", accept)
 
-	server.on("listening", function() {
+	server.listen(cfg.port, cfg.host, function() {
 		var a = server.address()
 		log(2, "F listening "+(a.address || "*")+":"+a.port)
 	})
-
-	server.listen(cfg.port, cfg.host)
 }
 
 
