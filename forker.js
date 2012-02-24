@@ -21,6 +21,7 @@ IN THE SOFTWARE.
 */
 
 var net = require("net")
+var http = require("http")
 var fs = require("fs")
 var util = require("util"), insp = util.inspect
 var log5 = require("log5"), log = log5.mkLog("fork:")
@@ -45,13 +46,70 @@ var cfg = defaultConfig = {
 
 var seq = 0
 
+function pi10(s) {
+	return parseInt((""+s).trim(), 10) || 0
+}
 
-function accept(cli) {
+function r500(req, res) {
+	res.writeHead(500, "Error")
+	res.end()
+}
+
+function request(req, res) {
+
+	var hdrs = req.headers
+
+	var hh = hdrs.host || "default"
+	hh = hh.trim().toLowerCase()
+	log("hh="+hh);
+
+	var p_host = "localhost"
+	var p_port = 80
+
+	var a = hh.split(":")
+	switch(a.length) {
+	case 2:
+		p_port = pi10(a[1])
+		if(p_port < 1)
+			p_port = 80
+		log("p_port="+p_port);
+		// fall through
+	case 1:
+		p_host = a[0].trim()
+		log("p_host.."+p_host);
+		if(/[^-\.a-z0-9]/.test(p_host))
+			p_host = "localhost"
+		log("p_host="+p_host);
+		break
+	}
+
+	log("routing "+req.method+" "+req.url+" to "+p_host+":"+p_port+"\n");
+
+	p_hdrs = (new Array(hdrs))[0]		// clone array
+	var opts = {
+		host: p_host,
+		hostname: p_host,
+		port: p_port,
+		method: req.method,
+		path: req.url,
+		headers: p_headers
+	}
+	p_req = http.request(opts, function(p_res) {
+		util.pump(p_res, p_res, function(e) {
+			log("back pump stopped: "+e)
+			res.end();
+		})
+	})
+	util.pump(req, p_req, function(e) {
+		log("fwd pump stopped: "+e)
+	})
+
+/*
 
 	var cid = ++seq
 
 	var ra = cli.remoteAddress+":"+cli.remotePort
-	log(2, "C-"+cid+" accept RMT="+ra)
+	log(2, "C-"+cid+" request RMT="+ra)
 
 	var held = []
 	var heldLen = 0
@@ -196,6 +254,7 @@ function accept(cli) {
 		
 		srv.connect(rport, rhost)
 	}
+*/
 }
 
 
@@ -209,13 +268,13 @@ var start = function(e, s) {
 
 	log(cfg.logLevel)
 
-	server = net.createServer()
+	server = http.createServer()
 
 	server.on("error", function(e) {
 		log(1, "F error "+e.stack)
 	})
 
-	server.on("connection", accept)
+	server.on("request", request)
 
 	server.listen(cfg.port, cfg.host, function() {
 		var a = server.address()
