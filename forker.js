@@ -35,12 +35,13 @@ process.on("uncaughtException", function(e) {
 })
 
 
+var defaultFork = { "host": "localhost", "port":8080 }
 var cfgFile = "cfg.json"
 var cfg = defaultConfig = {
 	logLevel: 1,
 	port: 80,
 	forks:{
-		"default": { "host": "localhost", "port":8080 }
+		"default": defaultFork
 	}
 }
 
@@ -56,43 +57,54 @@ function r500(req, res) {
 }
 
 function request(req, res) {
+	seq++
 
 	var hdrs = req.headers
+	var p_hdrs = (new Array(hdrs))[0]		// clone 
 
-	var hh = hdrs.host || "default"
-	hh = hh.trim().toLowerCase()
-	log("hh="+hh);
+	var hh = (hdrs.host || "default").trim().toLowerCase()
 
-	var p_host = "localhost"
-	var p_port = 80
-
-	var a = hh.split(":")
-	switch(a.length) {
-	case 2:
-		p_port = pi10(a[1])
-		if(p_port < 1)
-			p_port = 80
-		log("p_port="+p_port);
-		// fall through
-	case 1:
-		p_host = a[0].trim()
-		log("p_host.."+p_host);
-		if(/[^-\.a-z0-9]/.test(p_host))
-			p_host = "localhost"
-		log("p_host="+p_host);
-		break
+	var fork = null;
+	var m = hh.match(/^([-\.a-z0-9]+)(:([0-9]+))?$/)
+	if(m) {
+		fork = cfg.forks[ m[1] + ":" + (m.length >= 3 ? m[2] : 80) ]
 	}
+	else {
+	}
+	fork = fork || cfg.forks["default"] || defaultFork
+	var p_hh = fork.host + ":" + fork.port
 
-	log("routing "+req.method+" "+req.url+" to "+p_host+":"+p_port+"\n");
+	log(seq+": routing "+req.method+" "+hh+req.url+" to "+p_hh);
 
-	p_hdrs = (new Array(hdrs))[0]		// clone array
+	p_hdrs.host = p_hh
+
+	p_req = http.createClient(fork.port, fork.host).request(req.method, req.url, p_hdrs)
+
+	p_req.on('response', function(p_res) {
+		res.writeHead(p_res.statusCode, p_res.headers)
+		util.pump(p_res, res)
+		p_res.on('end', function() {
+			p_req.end()
+			res.end()
+		})
+	})
+	req.on('data', function(chunk) {
+		p_req.write(chunk)
+	})
+	req.on('end', function() {
+		p_req.end()
+	})
+
+	/*
+
+
 	var opts = {
 		host: p_host,
 		hostname: p_host,
 		port: p_port,
 		method: req.method,
 		path: req.url,
-		headers: p_headers
+		headers: p_hdrs
 	}
 	p_req = http.request(opts, function(p_res) {
 		util.pump(p_res, p_res, function(e) {
@@ -103,6 +115,9 @@ function request(req, res) {
 	util.pump(req, p_req, function(e) {
 		log("fwd pump stopped: "+e)
 	})
+	req.on("error", function(e) { log("req error "+e); })
+	p_req.on("error", function(e) { log("p_req error "+e); })
+	*/
 
 /*
 
