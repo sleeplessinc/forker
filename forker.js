@@ -66,17 +66,18 @@ function request(req, res) {
 	var hh = (hdrs.host || "default").trim().toLowerCase()
 
 	var fork = null;
-	var m = hh.match(/^([-\.a-z0-9]+)(:([0-9]+))?$/)
+	//var m = hh.match(/^([-\.a-z0-9]+)(:([0-9]+))?$/)
+	var m = hh.match(/^([-\.a-z0-9]+)$/)
 	if(m) {
-		var lu = m[1] + ":" + (m[2] ? m[2] : 80)
+		var lu = m[1]  // + ":" + (m[2] ? m[2] : 80)
 		fork = cfg.forks[ lu ]
 	}
 	else {
 	}
 	fork = fork || cfg.forks["default"] || defaultFork
-	var p_hh = fork.host + ":" + fork.port
+	var p_hh = fork.host  // + ":" + fork.port
 
-	log(2, seq+": routing "+req.method+" "+hh+req.url+" to "+p_hh);
+	log(2, seq+": routing "+req.method+" "+hh+req.url+" to "+fork.host+":"+fork.port);
 
 	p_hdrs.host = p_hh
 
