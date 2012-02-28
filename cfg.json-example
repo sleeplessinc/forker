@@ -1,7 +1,7 @@
 {
 	"logLevel": 2,
 	"port": 80,
-	"host": "127.0.0.1",
+	"host": "0.0.0.0",
 	"forks":{
 		"localhost":			{ "host":"sleepless.com",	"port":8080 },
 		"default":				{ "host":"sleepless.com",	"port":80 }

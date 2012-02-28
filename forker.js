@@ -38,10 +38,12 @@ process.on("uncaughtException", function(e) {
 var defaultFork = { "host": "localhost", "port":8080 }
 var cfgFile = "cfg.json"
 var cfg = defaultConfig = {
-	logLevel: 1,
-	port: 80,
-	forks:{
-		"default": defaultFork
+	"logLevel": 2,
+	"port": 80,
+	"host": "0.0.0.0",
+	"forks":{
+		"localhost":			{ "host":"sleepless.com",	"port":8080 },
+		"default":				{ "host":"sleepless.com",	"port":80 }
 	}
 }
 
