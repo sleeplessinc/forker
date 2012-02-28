@@ -12,11 +12,11 @@ servers based on what is found in the "Host:" headers.
 	npm install forker
 	
 	cd node_modules/forker			# or where ever
+	cp cfg.json-example cfg.json
 	./start							# or sudo ./start
 
 	open "http://localhost" in a browser
 
-	cp cfg.json-example cfg.json
 	vim cfg.json					# to suit your purposes
 	./restart						# or sudo ./restart
 
@@ -39,7 +39,7 @@ rename it to cfg.json and edit to your liking.
 The logLevel can be 0 thru 5.  Higher levels give more deatailed output.
 
 The "port" setting is the port that forker will listen on. 
-If "host" is not included, forker listens on all IPs (xxx support multiple IPs)
+If "host" is not included, forker listens on all IPs 
 
 With the shown configuration,
 the "default" fork goes to the legacy Apache server (changed to listen on 8080 instead of 80)
@@ -47,7 +47,7 @@ and the "foo.com" fork goes to a Node server listening on port 2900
 
 ## Running
 
-The cfg.json file is expected to be in the current working directory. (xxx)
+The cfg.json file is expected to be in the current working directory. 
 
 	./start
 	./stop
@@ -58,7 +58,7 @@ be written to "log.txt"
 
 Note that if you want forker to listen on a privileged port, like 80, then
 it needs to be run with root privileges.  If you run forker as root, it will
-try to downgrade its uid/gid to 'nobody', so that user/group should exist.
+try to downgrade its uid/gid to 'nobody'.
 
 
 ## Why?
