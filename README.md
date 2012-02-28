@@ -10,6 +10,16 @@ servers based on what is found in the "Host:" headers.
 ## Install
 	
 	npm install forker
+	
+	cd node_modules/forker			# or where ever
+	./start							# or sudo ./start
+
+	open "http://localhost" in a browser
+
+	cp cfg.json-example cfg.json
+	vim cfg.json					# to suit your purposes
+	./restart						# or sudo ./restart
+
 
 ## Example config.json
 
