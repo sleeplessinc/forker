@@ -51,6 +51,11 @@ The cfg.json file is expected to be in the current working directory. (xxx)
 These scripts should be pretty self explanatory.  When started, a log will
 be written to "log.txt"
 
+Note that if you want forker to listen on a privileged port, like 80, then
+it needs to be run with root privileges.  If you run forker as root, it will
+try to downgrade its uid/gid to 'nobody', so that user/group should exist.
+
+
 ## Why?
 
 Note:
