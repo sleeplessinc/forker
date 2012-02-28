@@ -1,17 +1,26 @@
 {
   "name": "forker",
   "version": "2.0.0",
-  "description" : "A forking HTTP proxy (you heard me)",
-  "author": "Joe Hitchens <joe@sleepless.com> (sleepless.com)",
+  "description": "A forking HTTP proxy (you heard me)",
+  "author": "Joe Hitchens <joe@sleepless.com>",
+  "homepage": "https://github.com/sleeplessinc/forker",
+  "keywords": [
+		"simple",
+  	"proxy",
+		"http",
+		"sleepless"
+  ],
   "license": {
     "type": "MIT",
     "url": "https://github.com/sleeplessinc/forker/raw/master/LICENSE"
   },
   "repositories": [
-    {
-      "type": "git",
-      "url": "https://sleeplessinc@github.com/sleeplessinc/forker.git"
-    }
+		{
+			"type": "git",
+			"url": "https://sleeplessinc@github.com/sleeplessinc/forker.git"
+		}
   ],
-  "repository": "git://github.com/sleeplessinc/forker.git"
+  "dependencies": {
+		"log5", "1.2.9"
+  }
 }
