@@ -10,15 +10,3 @@ else
 fi
 
 
-#pid=""
-#if test -e "PID" ; then
-#	pid=`cat PID`
-#fi
-#
-#if [ "$pid" == "" ] ; then
-#	node > log.txt forker.js &
-#else
-#	echo "Already running" 
-#fi
-#
-

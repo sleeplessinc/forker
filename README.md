@@ -1,9 +1,11 @@
 
 # forker 
 
-This crazy forker listens on a port (typically 80) and forwards HTTP transactions to other
+This crazy little forker listens on a port (typically 80) and forwards HTTP
+transactions to other
 servers based on what is found in the "Host:" headers. 
-It's sort of like simplistic "virtual hosts" ... [Diagram](https://github.com/sleeplessinc/forker/raw/master/forker.pdf)
+
+[Diagram](https://github.com/sleeplessinc/forker/raw/master/forker.pdf)
 
 ## Install
 	
@@ -11,59 +13,71 @@ It's sort of like simplistic "virtual hosts" ... [Diagram](https://github.com/sl
 
 ## Example config.json
 
+There is a file called cfg.json-example that shows how to configure it.
+rename it to cfg.json and edit to your liking.
+
 	{
-		"logLevel": 1,
+		"logLevel": 2,
 		"port": 80,
-		"host": "127.0.0.1",
+		"host": "1.2.3.100",
 		"forks":{
-			"foo.com": { "host":"localhost", "port":3901 },
-			"default": { "host":"localhost", "port":8080 }
+			"foo.com:80":			{ "host":"1.2.3.4",		"port":2900 },
+			"sleepless.com:80":		{ "host":"1.2.3.100",	"port":8080 },
+			"default":				{ "host":"1.2.3.100",	"port":8080 }
 		}
 	}
 
-The logLevel can be 0 thru 5.  Higher levels beget more deatailed output.
+The logLevel can be 0 thru 5.  Higher levels give more deatailed output.
 
 The "port" setting is the port that forker will listen on. 
 If "host" is not included, forker listens on all IPs (xxx support multiple IPs)
 
 With the shown configuration,
 the "default" fork goes to the legacy Apache server (changed to listen on 8080 instead of 80)
-and the "foo.com" fork goes to a Node server listening on port 3901
+and the "foo.com" fork goes to a Node server listening on port 2900
+
+The port # needs to be included in the keys for the "forks" object, e.g., "foo.com"
+won't work, it has to be "foo.com:80", even though the Host: header in the
+request doesn't have that.  "default" shouldn't have a port.
 
 ## Running
 
-The config.json file is expected to be in the current working directory. (xxx)
+The cfg.json file is expected to be in the current working directory. (xxx)
 
-	node forker.js
+	./start
+	./stop
+	./restart
+
+These scripts should be pretty self explanatory.  When started, a log will
+be written to "log.txt"
 
 ## Why?
 
 Note:
 
-	There is already a project package called node-http-proxy which does more or less the 
-	same thing.
+	There is already a project package called node-http-proxy which similar things.
 	I wasn't (or didn't want to be) aware of it though, so I just rolled my own.
-	Mine is very simplistic and featureless by comparison, but I like to think it's much
+	Mine is very simple and featureless by comparison, but I like to think it's much
 	more efficient and simpler to setup and use.
 
 I wrote this because I have a Linux server that hosts many legacy virtual hosts using
 Apache and PHP.
 The Apache+PHP sites work great and I wanted to just leave them as they are, but I also
 wanted a way to deploy new Node servers on the same host that can share port 80
-without forcing the Node servers to suffer by making their traffic to go through Apache
-(using something like mod rewrite for example).
+without forcing the Node servers to suffer by making their traffic go through Apache first.
 
 So the idea is that forker listens on port 80 and acts as a "fork in the road".
 Traffic is split based on the hostname in "Host:" and goes either to Apache, or to some
-other destination based on what's in the simple configuration file called "config.json".
+other destination based on what's in the configuration file called.
 
-I'd be very interested in anyone who wants to improve this module to make it more 
-robust.
+Anyone interested in making improvements is welcome to send pull requests.
+Note that I'm most interested in making it robust and reliable, versus adding
+features, options, flexibility, etc.
 
 
 ## License
 
-	Copyright 2011 Sleepless Software Inc. All rights reserved.
+	Copyright 2012 Sleepless Software Inc. All rights reserved.
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to
