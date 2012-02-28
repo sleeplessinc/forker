@@ -128,7 +128,7 @@ var start = function(e, s) {
 
 	server.on("error", function(e) {
 		if(!root && cfg.port < 1024)
-			log(1, "Configured to listen on port "+cfg.port+" but user not root")
+			log(1, "Can't listen on port "+cfg.port+". User not root.")
 		else 
 			log(1, "ERROR "+e.stack)
 	})
