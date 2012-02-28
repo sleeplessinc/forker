@@ -29,11 +29,10 @@ rename it to cfg.json and edit to your liking.
 	{
 		"logLevel": 2,
 		"port": 80,
-		"host": "1.2.3.100",
+		"host": "0.0.0.0",
 		"forks":{
-			"foo.com":			{ "host":"1.2.3.4",		"port":2900 },
-			"sleepless.com":	{ "host":"1.2.3.100",	"port":8080 },
-			"default":			{ "host":"1.2.3.100",	"port":8080 }
+			"localhost":			{ "host":"sleepless.com",	"port":8080 },
+			"default":				{ "host":"sleepless.com",	"port":80 }
 		}
 	}
 
