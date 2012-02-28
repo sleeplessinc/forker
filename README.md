@@ -40,9 +40,6 @@ The logLevel can be 0 thru 5.  Higher levels give more deatailed output.
 The "port" setting is the port that forker will listen on. 
 If "host" is set to "0.0.0.0", forker listens on all IPs 
 
-With the shown configuration,
-the "default" fork goes to the legacy Apache server (changed to listen on 8080 instead of 80)
-and the "foo.com" fork goes to a Node server listening on port 2900
 
 ## Running
 
