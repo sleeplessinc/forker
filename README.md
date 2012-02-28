@@ -4,8 +4,7 @@
 This crazy little forker listens on a port (typically 80) and forwards HTTP
 transactions to other
 servers based on what is found in the "Host:" headers. 
-
-	[Diagram](https://github.com/sleeplessinc/forker/raw/master/forker.pdf)
+See [diagram](https://github.com/sleeplessinc/forker/raw/master/forker.pdf).
 
 ## Install
 	
