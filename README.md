@@ -21,9 +21,9 @@ rename it to cfg.json and edit to your liking.
 		"port": 80,
 		"host": "1.2.3.100",
 		"forks":{
-			"foo.com:80":			{ "host":"1.2.3.4",		"port":2900 },
-			"sleepless.com:80":		{ "host":"1.2.3.100",	"port":8080 },
-			"default":				{ "host":"1.2.3.100",	"port":8080 }
+			"foo.com":			{ "host":"1.2.3.4",		"port":2900 },
+			"sleepless.com":	{ "host":"1.2.3.100",	"port":8080 },
+			"default":			{ "host":"1.2.3.100",	"port":8080 }
 		}
 	}
 
@@ -35,10 +35,6 @@ If "host" is not included, forker listens on all IPs (xxx support multiple IPs)
 With the shown configuration,
 the "default" fork goes to the legacy Apache server (changed to listen on 8080 instead of 80)
 and the "foo.com" fork goes to a Node server listening on port 2900
-
-The port # needs to be included in the keys for the "forks" object, e.g., "foo.com"
-won't work, it has to be "foo.com:80", even though the Host: header in the
-request doesn't have that.  "default" shouldn't have a port.
 
 ## Running
 

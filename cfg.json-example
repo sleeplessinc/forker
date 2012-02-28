@@ -3,8 +3,8 @@
 	"port": 80,
 	"host": "1.2.3.100",
 	"forks":{
-		"foo.sleepless.com:80":		{ "host":"1.2.3.4",		"port":2900 },
-		"sleepless.com:80":			{ "host":"1.2.3.100",	"port":8080 },
+		"foo.sleepless.com":		{ "host":"1.2.3.4",		"port":2900 },
+		"sleepless.com":			{ "host":"1.2.3.100",	"port":8080 },
 		"default":					{ "host":"1.2.3.100",	"port":8080 }
 	}
 }
