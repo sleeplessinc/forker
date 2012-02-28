@@ -1,11 +1,11 @@
 #!/bin/bash
 
 
+touch "PID"
 pid=`cat PID`
 if [ -d "/proc/$pid" ] ; then
 	echo "Already running" 
 else
-	ulimit -n 100000
 	node > log.txt forker.js &
 fi
 

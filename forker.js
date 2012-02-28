@@ -24,7 +24,7 @@ var net = require("net")
 var http = require("http")
 var fs = require("fs")
 var util = require("util"), insp = util.inspect
-var log5 = require("log5"), log = log5.mkLog("fork:")
+var log5 = require("log5"), log = log5.mkLog("forker:")
 
 var j2o = function(j) { try { return JSON.parse(j) } catch(e) { return null } }
 var o2j = function(o) { return JSON.stringify(o) }
@@ -45,6 +45,7 @@ var cfg = defaultConfig = {
 	}
 }
 
+var root = process.getuid() == 0;
 var seq = 0
 
 function pi10(s) {
@@ -124,15 +125,18 @@ var start = function(e, s) {
 	server = http.createServer()
 
 	server.on("error", function(e) {
-		log(1, "ERROR "+e.stack)
+		if(!root && cfg.port < 1024)
+			log(1, "Configured to listen on port "+cfg.port+" but user not root")
+		else 
+			log(1, "ERROR "+e.stack)
 	})
 
 	server.on("request", request)
 
-	log(2, ""+cfg.host+":"+cfg.port)
+	log(2, cfg.host+":"+cfg.port)
 	server.listen(cfg.port, cfg.host, function() {
 
-		if(process.getuid() == 0) {
+		if(root) {
 			try {
 				process.setgid('nobody')
 				process.setuid('nobody')
