@@ -63,12 +63,10 @@ try to downgrade its uid/gid to 'nobody'.
 
 ## Why?
 
-Note:
-
-	There is already a project package called node-http-proxy which similar things.
-	I wasn't (or didn't want to be) aware of it though, so I just rolled my own.
-	Mine is very simple and featureless by comparison, but I like to think it's much
-	more efficient and simpler to setup and use.
+There is already a project package called node-http-proxy which similar things.
+I wasn't (or didn't want to be) aware of it though, so I just rolled my own.
+Mine is very simple and featureless by comparison, but I like to think it's much
+more efficient and simpler to setup and use.
 
 I wrote this because I have a Linux server that hosts many legacy virtual hosts using
 Apache and PHP.
