@@ -67,20 +67,32 @@ function request(req, res) {
 	var fork = null;
 	var m = hh.match(/^([-\.a-z0-9]+)(:([0-9]+))?$/)
 	if(m) {
-		fork = cfg.forks[ m[1] + ":" + (m.length >= 3 ? m[2] : 80) ]
+		var lu = m[1] + ":" + (m[2] ? m[2] : 80)
+		fork = cfg.forks[ lu ]
 	}
 	else {
 	}
 	fork = fork || cfg.forks["default"] || defaultFork
 	var p_hh = fork.host + ":" + fork.port
 
-	log(seq+": routing "+req.method+" "+hh+req.url+" to "+p_hh);
+	log(2, seq+": routing "+req.method+" "+hh+req.url+" to "+p_hh);
 
 	p_hdrs.host = p_hh
 
 	p_req = http.createClient(fork.port, fork.host).request(req.method, req.url, p_hdrs)
 
 	p_req.on('response', function(p_res) {
+
+		var hl = p_res.headers["location"] || p_res.headers["Location"]
+		if(hl) {
+			log(3, "fixing 301 ...")
+			var re = new RegExp("^(https?://)"+p_hh+"(.*)", "i")
+			var m = re.exec(hl)
+			if(m) {
+				p_res.headers.location = m[1] + hh + m[2];
+			}
+		}
+
 		res.writeHead(p_res.statusCode, p_res.headers)
 		util.pump(p_res, res)
 		p_res.on('end', function() {
@@ -291,6 +303,7 @@ var start = function(e, s) {
 
 	server.on("request", request)
 
+	log(2, "F "+cfg.host+":"+cfg.port)
 	server.listen(cfg.port, cfg.host, function() {
 		var a = server.address()
 		log(2, "F listening "+(a.address || "*")+":"+a.port)
