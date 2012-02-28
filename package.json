@@ -1,6 +1,6 @@
 {
 	"name": "forker",
-	"version": "2.0.4",
+	"version": "2.0.5",
 	"description": "A forking HTTP proxy (you heard me)",
 	"author": "Joe Hitchens <joe@sleepless.com>",
 	"homepage": "https://github.com/sleeplessinc/forker",
