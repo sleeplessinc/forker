@@ -130,8 +130,20 @@ var start = function(e, s) {
 
 	log(2, ""+cfg.host+":"+cfg.port)
 	server.listen(cfg.port, cfg.host, function() {
+
+		if(process.getuid() == 0) {
+			try {
+				process.setgid('nobody')
+				process.setuid('nobody')
+			}
+			catch(e) {
+				log(1, "WARNING: Can't downgrade uid/gid to 'nobody': "+e)
+			}
+		}
+
 		var a = server.address()
 		log(2, "listening "+(a.address || "*")+":"+a.port)
+
 	})
 }
 
