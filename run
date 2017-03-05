@@ -1,0 +1,14 @@
+#!/bin/bash
+
+while true ; do 
+	
+	node forker.js &> log.txt
+
+	d=`date +"logs/%Y-%m-%d %H-%M-%S.log"`
+	mkdir -p logs
+	cp log.txt "$d"
+	
+	sleep 5 
+
+done
+
