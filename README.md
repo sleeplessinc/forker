@@ -2,48 +2,30 @@
 # Forker 
 
 This crazy little forker listens on a port (typically 80) and forwards HTTP
-transactions to other
-servers based on what is found in the "Host:" headers. 
+transactions to other servers based on what is found in the "Host:" headers
+of the request.
 See [diagram](https://github.com/sleeplessinc/forker/raw/master/forker.pdf).
-
-## Install
-	
-	npm install forker
-	
-	cd node_modules/forker			# or where ever
-	cp cfg.json-example cfg.json
-	./start							# or sudo ./start
-
-	open "http://localhost" in a browser
-
-	vim cfg.json					# to suit your purposes
-	./restart						# or sudo ./restart
 
 
 ## Example config.json
 
 There is a file called cfg.json-example that shows how to configure it.
-rename it to cfg.json and edit to your liking.
+rename it to config.json and edit to your liking.
 
 	{
-		"logLevel": 2,
 		"port": 80,
-		"host": "0.0.0.0",
 		"forks":{
-			"localhost":			{ "host":"sleepless.com",	"port":8080 },
-			"default":				{ "host":"sleepless.com",	"port":80 }
+			"sleepless.com":			{ "host":"localhost",	"port":8080 },
 		}
 	}
 
-The logLevel can be 0 thru 5.  Higher levels give more deatailed output.
-
 The "port" setting is the port that forker will listen on. 
-If "host" is set to "0.0.0.0", forker listens on all IPs 
+Forker listens on all IPs 
 
 
 ## Running
 
-The cfg.json file is expected to be in the current working directory. 
+The config.json file is expected to be in the current working directory. 
 
 	./start
 	./stop
@@ -52,23 +34,15 @@ The cfg.json file is expected to be in the current working directory.
 These scripts should be pretty self explanatory.  When started, a log will
 be written to "log.txt"
 
-Note that if you want forker to listen on a privileged port, like 80, then
-it needs to be run with root privileges.  If you run forker as root, it will
-try to downgrade its uid/gid to 'nobody'.
-
 
 ## Why?
-
-There is already a project package called node-http-proxy which similar things.
-I wasn't (or didn't want to be) aware of it though, so I just rolled my own.
-Mine is very simple and featureless by comparison, but I like to think it's much
-more efficient and simpler to setup and use.
 
 I wrote this because I have a Linux server that hosts many legacy virtual hosts using
 Apache and PHP.
 The Apache+PHP sites work great and I wanted to just leave them as they are, but I also
 wanted a way to deploy new Node servers on the same host that can share port 80
-without forcing the Node servers to suffer by making their traffic go through Apache first.
+without forcing the Node servers to suffer by making their traffic go through
+Apache first.
 
 So the idea is that forker listens on port 80 and acts as a "fork in the road".
 Traffic is split based on the hostname in "Host:" and goes either to Apache, or to some
@@ -81,7 +55,7 @@ features, options, flexibility, etc.
 
 ## License
 
-	Copyright 2012 Sleepless Software Inc. All rights reserved.
+	Copyright 2017 Sleepless Software Inc. All rights reserved.
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to
