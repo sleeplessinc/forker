@@ -22,8 +22,9 @@
   ],
   "dependencies": {
     "express": "^4.15.0",
+    "g": "^2.0.1",
     "http-proxy": "^1.16.2",
-    "log5": "1.2.9",
+    "log5": "^1.2.9",
     "sleepless": "^2.4.7",
     "vhost": "^3.0.2"
   }
