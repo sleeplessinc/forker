@@ -1,4 +1,6 @@
 
+fs.writeFileSync("PID", ""+process.pid)
+
 express = require('express');
 http = require('http');
 httpProxy = require('http-proxy');
