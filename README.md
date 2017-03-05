@@ -23,18 +23,6 @@ The "port" setting is the port that forker will listen on.
 Forker listens on all IPs 
 
 
-## Running
-
-The config.json file is expected to be in the current working directory. 
-
-	./start
-	./stop
-	./restart
-
-These scripts should be pretty self explanatory.  When started, a log will
-be written to "log.txt"
-
-
 ## Why?
 
 I wrote this because I have a Linux server that hosts many legacy virtual hosts using

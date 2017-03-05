@@ -1,9 +1,0 @@
-#!/bin/bash
-
-pid=`cat PID`
-if [ -d "/proc/$pid" ] ; then
-	kill -9 "$pid"
-else
-	echo "Not running"
-fi
-
